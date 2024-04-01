@@ -14,18 +14,21 @@
             var bt4 = bgp.add("button", undefined, "LO>camera");
             var bt5 = bgp.add("button", undefined, "guidelayer_on");
             var bt6 = bgp.add("button", undefined, "guidelayer_off");
+            var bt7 = bgp.add("button", undefined, "3dcamerasclae");
                 bt1.onClick = shapelayeradj;
                 bt2.onClick = openFile;
                 bt3.onClick = openfilefolder;
                 bt4.onClick = LOtoCamera;
                 bt5.onClick = guidelayeron;
                 bt6.onClick = guidelayeroff;
+                bt7.onClick = threecamerascale;
         }
         return pal;
     }
 
     //function
     function shapelayeradj() {
+        app.beginUndoGroup("bt1");
         var actItem = app.project.activeItem;
         if (actItem !== null && actItem instanceof CompItem) {
             if (actItem.selectedLayers.length > 0) {
@@ -53,9 +56,11 @@
             fill.name = "Fill";
             fill.property("ADBE Vector Fill Color").setValue([1, 1, 1, 1]);
         }
+        app.endUndoGroup();
     }
 
     function openfilefolder() {
+        app.beginUndoGroup("bt3");
         var actItem = app.project.activeItem;
         var selLayer = actItem.selectedLayers[0];
         if (actItem.selectedLayers.length > 0) {
@@ -69,9 +74,11 @@
         } else {
             alert("Select a layer");
         }
+        app.endUndoGroup();
     }
 
     function openFile() {
+        app.beginUndoGroup("bt2");
         var actItem = app.project.activeItem;
         var selLayer = actItem.selectedLayers[0];
         if (actItem.selectedLayers.length > 0) {
@@ -84,9 +91,11 @@
         } else {
             alert("Select a layer");
         }
+        app.endUndoGroup();
     }
 
     function LOtoCamera() {
+        app.beginUndoGroup("bt4");
         var actItem = app.project.activeItem;
         var selLayer = actItem.selectedLayers[0];
         if (selLayer.source instanceof FootageItem) {
@@ -126,9 +135,11 @@
         } else {
             alert("is not animatic file")
         }
+        app.endUndoGroup();
     }
     
     function guidelayeron() {
+        app.beginUndoGroup("bt5");
         var actItem = app.project.activeItem;
         var selLayer = actItem.selectedLayers[0];
         if (actItem.selectedLayers.length > 1) {
@@ -139,9 +150,11 @@
         } else {
             selLayer.guideLayer = true;
         }
+        app.endUndoGroup();
     }
 
     function guidelayeroff() {
+        app.beginUndoGroup("bt6");
         var actItem = app.project.activeItem;
         var selLayer = actItem.selectedLayers[0];
         if (actItem.selectedLayers.length > 1) {
@@ -152,6 +165,35 @@
         } else {
             selLayer.guideLayer = false;
         }
+        app.endUndoGroup();
+    }
+
+    function threecamerascale() {
+        app.beginUndoGroup("bt7");
+        var actItem = app.project.activeItem;
+        var selLayer = actItem.selectedLayers;
+        if(actItem && actItem instanceof CompItem){
+            for (var i = 1; i <= actItem.numLayers; i++) {
+                var layer = actItem.layer(i);
+                if (layer instanceof CameraLayer) {
+                    var Clayer = layer;
+                    break;
+                }
+            }
+        }
+        var frameWidth = actItem.width;
+        var frameHeight = actItem.height;
+        for (var j = 0; j < selLayer.length; j++) {
+            var selectedLayer = actItem.selectedLayers[j];
+            var layerWidth = selectedLayer.width;
+            var layerHeight = selectedLayer.height;
+            var cameraZpos = Clayer.property("Camera Options").property("Zoom").value;
+            var distanceToCamera = selectedLayer.transform.position.value[2];
+            var scaleFactorX = (frameWidth / layerWidth) * (1 + (distanceToCamera / cameraZpos));
+            var scaleFactorY = (frameHeight / layerHeight) * (1 + (distanceToCamera / cameraZpos));     
+            selectedLayer.property("ADBE Transform Group").property("ADBE Scale").setValue([scaleFactorX*100, scaleFactorY*100, 100]);
+        }
+        app.beginUndoGroup();
     }
     
     // show UI
