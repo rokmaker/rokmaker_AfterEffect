@@ -15,6 +15,8 @@
             var bt5 = bgp.add("button", undefined, "guidelayer_on");
             var bt6 = bgp.add("button", undefined, "guidelayer_off");
             var bt7 = bgp.add("button", undefined, "3dcamerasclae");
+            var bt8 = bgp.add("button", undefined, "open_exptext");
+            var bt9 = bgp.add("button", undefined, "comptolayer");
                 bt1.onClick = shapelayeradj;
                 bt2.onClick = openFile;
                 bt3.onClick = openfilefolder;
@@ -22,6 +24,8 @@
                 bt5.onClick = guidelayeron;
                 bt6.onClick = guidelayeroff;
                 bt7.onClick = threecamerascale;
+                bt8.onClick = openexptext;
+                bt9.onClick = compsizetolayersize;
         }
         return pal;
     }
@@ -194,6 +198,44 @@
             selectedLayer.property("ADBE Transform Group").property("ADBE Scale").setValue([scaleFactorX*100, scaleFactorY*100, 100]);
         }
         app.beginUndoGroup();
+    }
+
+    function openexptext() {
+        /*var textfilepath = "D:\\\\스크립트\\\\익스프레션_쓰는것.txt";
+        var command = "notepad.exe " + textfilepath;
+        system.callSystem(command);*/
+        var textfilepath = "D:\\스크립트\\익스프레션_쓰는것.txt";
+        var file= new File(textfilepath);
+        file.execute();
+    }
+
+    function compsizetolayersize() {
+        app.beginUndoGroup("bt9");
+        var actItem = app.project.activeItem;
+        var selLayer = actItem.selectedLayers[0];
+        if (actItem.selectedLayers.length == 0) {
+            for(i = 1; i <= actItem.numLayers; i++){
+                var layer = actItem.layer(i);
+                if (layer.name.indexOf("LO") !== -1 || layer.name.indexOf("lo") !== -1) {
+                    selLayer = layer;
+                    //alert(selLayer.name);
+                }
+            }
+        }
+        var rect = selLayer.source;
+        actItem.width = parseInt(Math.floor(rect.width));
+        actItem.height = parseInt(Math.floor(rect.height));
+        for(i = 1; i <= actItem.numLayers; i++) {
+            var actItemlayer = actItem.layer(i);
+            var positionProperty = actItemlayer.property("ADBE Transform Group").property("ADBE Position");
+            var zPositionProperty = actItemlayer.property("ADBE Transform Group").property("ADBE Position").value[2];
+            if (actItemlayer instanceof CameraLayer) {
+                positionProperty.setValue([0, 0, zPositionProperty]);
+            }else{
+                positionProperty.setValue([actItem.width / 2, actItem.height / 2, zPositionProperty]);
+            }
+        }
+        app.endUndoGroup();
     }
     
     // show UI
