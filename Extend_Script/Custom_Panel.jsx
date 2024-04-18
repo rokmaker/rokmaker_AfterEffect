@@ -17,6 +17,8 @@
             var bt7 = bgp.add("button", undefined, "3dcamerasclae");
             var bt8 = bgp.add("button", undefined, "open_exptext");
             var bt9 = bgp.add("button", undefined, "comptolayer");
+            var bt10 = bgp.add("button", undefined, "changenameEF");
+            var bt11 = bgp.add("button", undefined, "keymarker");
                 bt1.onClick = shapelayeradj;
                 bt2.onClick = openFile;
                 bt3.onClick = openfilefolder;
@@ -26,6 +28,8 @@
                 bt7.onClick = threecamerascale;
                 bt8.onClick = openexptext;
                 bt9.onClick = compsizetolayersize;
+                bt10.onClick = layernamechangetoeffect;
+                bt11.onClick = keymarker;
         }
         return pal;
     }
@@ -236,6 +240,74 @@
             }
         }
         app.endUndoGroup();
+    }
+
+    function layernamechangetoeffect() {
+        app.beginUndoGroup("layernamechangetoeffect");
+        var actItem = app.project.activeItem;
+        var selLayer = actItem.selectedLayers;
+        if (actItem.selectedLayers.length > 0) {
+            for (var i = 0; i < selLayer.length; i++) {
+                var propParade = selLayer[i].property("ADBE Effect Parade")
+                if (propParade.numProperties > 1) {
+                    var propnum = propParade.numProperties;
+                    var len = selLayer.length;
+                    for (var j = 1; j == len; j++) {
+                        var layernum = j;
+                        selLayer[i].name = String(propnum) + " " +"Effect Layer" + " " + layernum;
+                    };
+                }else{
+                    var props = propParade.property(1);
+                    selLayer[i].name = props.name;
+                }
+            }
+        } else {
+            alert("Select a layer");
+        }
+    }
+
+    function keymarker() {
+        var actItem = app.project.activeItem;
+        var selLayer = actItem.selectedLayers[0];
+        var prop = app.project.activeItem.selectedProperties[0];
+        if (!prop || !prop.isTimeVarying) {
+            alert("Select a keyframable property");
+            return;
+        }
+        app.beginUndoGroup("Key Marker");
+        for (i = 1; i <= prop.numKeys; i++){
+            var keyTime = prop.keyTime(i);
+            var keyValue = prop.keyValue(i);
+            if (prop.name !== "ADBE Time Remapping") {
+                var fps = actItem.frameRate;
+                var frame = Math.round(keyValue * fps) + 1;
+                var keyValue = frame;
+            }
+            var marker = new MarkerValue(keyValue);
+            if (actItem && actItem instanceof CompItem) {
+                var found = false;
+                for (var j = 1; j <= app.project.numItems; j++) {
+                    var item = app.project.item(j);
+                    if (item instanceof CompItem && item !== actItem) {
+                        for (var k = 1; k <= item.numLayers; k++) {
+                            var layer = item.layer(k);
+                            if (layer.source === actItem) {
+                                var markerTime = keyTime + layer.startTime;
+                                item.layers[k].property("Marker").setValueAtTime(markerTime , marker);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                }
+                if (!found) {
+                    alert("No parent composition found.");
+                }
+            } else {
+                alert("There is no active composition or the selected item is not a composition.");
+            }
+        }        
     }
     
     // show UI
