@@ -292,13 +292,17 @@
                         for (var k = 1; k <= item.numLayers; k++) {
                             var layer = item.layer(k);
                             if (layer.source === actItem) {
+                                /*if(item.layers[k].property("Marker").numKeys > 0) {
+                                    var totalKeys = item.layers[k].property("Marker").numKeys;
+                                    for (var l = totalKeys; l >= 1; l--) {
+                                        item.layers[k].property("Marker").removeKey(l);
+                                    }
+                                }*/
                                 var markerTime = keyTime + layer.startTime;
                                 item.layers[k].property("Marker").setValueAtTime(markerTime , marker);
                                 found = true;
-                                break;
                             }
                         }
-                        if (found) break;
                     }
                 }
                 if (!found) {
