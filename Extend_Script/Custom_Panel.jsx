@@ -19,6 +19,7 @@
             var bt9 = bgp.add("button", undefined, "comptolayer");
             var bt10 = bgp.add("button", undefined, "changenameEF");
             var bt11 = bgp.add("button", undefined, "keymarker");
+            var bt12 = bgp.add("button", undefined, "colorkey");
                 bt1.onClick = shapelayeradj;
                 bt2.onClick = openFile;
                 bt3.onClick = openfilefolder;
@@ -30,6 +31,7 @@
                 bt9.onClick = compsizetolayersize;
                 bt10.onClick = layernamechangetoeffect;
                 bt11.onClick = keymarker;
+                bt12.onClick = colorkeyeffect;
         }
         return pal;
     }
@@ -312,6 +314,15 @@
                 alert("There is no active composition or the selected item is not a composition.");
             }
         }        
+    }
+
+    function colorkeyeffect() {
+        var actItem = app.project.activeItem;
+        var selLayer = actItem.selectedLayers[0];
+        app.beginUndoGroup("Color Key Effect");
+        var colorKey = selLayer.property("ADBE Effect Parade").addProperty("ADBE Color Key");
+        colorKey.property("Key Color").setValue([1, 1, 1]);
+        app.endUndoGroup();
     }
     
     // show UI
