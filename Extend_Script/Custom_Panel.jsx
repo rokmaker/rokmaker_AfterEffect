@@ -3,21 +3,22 @@
 (function CustomPanel(thisObj) {
     // UI
     function buildUI(thisObj) {
+        
         var pal = (thisObj instanceof Panel) ? thisObj : new Window("palette", "Custom Panel", undefined, {resizeable:true});
         if (pal !== null) {
             var bgp = pal.add("group", undefined, "bgp");
                 bgp.orientation = "row";
                 bgp.alignChildren = ["fill", "fill"];
-            var bt1 = bgp.add("button", undefined, "shapelayer_adj");
-            var bt2 = bgp.add("button", undefined, "open_file");
-            var bt3 = bgp.add("button", undefined, "open_folder");
-            var bt4 = bgp.add("button", undefined, "LO>camera");
-            var bt5 = bgp.add("button", undefined, "guidelayer_on");
-            var bt6 = bgp.add("button", undefined, "guidelayer_off");
-            var bt7 = bgp.add("button", undefined, "3dcamerasclae");
-            var bt8 = bgp.add("button", undefined, "open_exptext");
-            var bt9 = bgp.add("button", undefined, "comptolayer");
-            var bt10 = bgp.add("button", undefined, "changenameEF");
+            var bt1 = bgp.add("button", undefined, "shapeLayer");
+            var bt2 = bgp.add("button", undefined, "fileOpen");
+            var bt3 = bgp.add("button", undefined, "folderOpen");
+            var bt4 = bgp.add("button", undefined, "LO > camera");
+            var bt5 = bgp.add("button", undefined, "guideLayeron");
+            var bt6 = bgp.add("button", undefined, "guideLayeroff");
+            var bt7 = bgp.add("button", undefined, "layer > 3dcamera");
+            var bt8 = bgp.add("button", undefined, "exptext");
+            var bt9 = bgp.add("button", undefined, "comp > layer");
+            var bt10 = bgp.add("button", undefined, "name > EF");
             var bt11 = bgp.add("button", undefined, "keymarker");
             var bt12 = bgp.add("button", undefined, "colorkey");
                 bt1.onClick = shapelayeradj;
@@ -44,6 +45,9 @@
             if (actItem.selectedLayers.length > 0) {
                 var selLayer = actItem.selectedLayers[0];
                 var selindex = selLayer.index;
+                var moveLayer = actItem.layer(selindex);
+            } else {
+                var moveLayer = actItem.layer(1);
             }
             var shapelayer = actItem.layers.addShape();
             for (i = 1; i <= actItem.numLayers; i++) {
@@ -53,7 +57,6 @@
                     shapelayer.name = "Effect Layer";
                 }
             }
-            shapelayer.moveBefore(actItem.layer(selindex + 1));
             shapelayer.property("ADBE Transform Group").property("ADBE Position").setValue([actItem.width / 2, actItem.height / 2]);
             shapelayer.property("ADBE Transform Group").property("ADBE Position").expression = "[thisComp.width / 2, thisComp.height / 2]";
             shapelayer.adjustmentLayer = true;
@@ -65,6 +68,7 @@
             var fill = shapelayer.property("ADBE Root Vectors Group").addProperty("ADBE Vector Graphic - Fill");
             fill.name = "Fill";
             fill.property("ADBE Vector Fill Color").setValue([1, 1, 1, 1]);
+            shapelayer.moveBefore(moveLayer);
         }
         app.endUndoGroup();
     }
@@ -210,7 +214,7 @@
         /*var textfilepath = "D:\\\\스크립트\\\\익스프레션_쓰는것.txt";
         var command = "notepad.exe " + textfilepath;
         system.callSystem(command);*/
-        var textfilepath = "D:\\스크립트\\익스프레션_쓰는것.txt";
+        var textfilepath = "F:\\소스백업\\익스프레션_쓰는것.txt";
         var file= new File(textfilepath);
         file.execute();
     }
@@ -324,7 +328,11 @@
         colorKey.property("Key Color").setValue([1, 1, 1]);
         app.endUndoGroup();
     }
-    
+
+    function durationchage() {
+        
+    }
+
     // show UI
     var myPanel = buildUI(thisObj);
     if (myPanel !== null) {
